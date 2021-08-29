@@ -70,8 +70,14 @@ SkyboxData LoadSkybox(
 		textureFileName = baseDir + "/" + faces[i];
 
 		if (!FileExists(textureFileName)) {
-			std::cerr << "Unable to find file: " << textureFileName << std::endl;
-			exit(1);
+
+			//Append base dir.
+			textureFileName = textureFileName;
+
+			if (!FileExists(textureFileName)) {
+				std::cerr << "Unable to find file: " << textureFileName << std::endl;
+				exit(1);
+			}
 		}
 
 		unsigned char* image = stbi_load(
@@ -79,7 +85,7 @@ SkyboxData LoadSkybox(
 			&w,
 			&h,
 			&comp,
-			STBI_default
+			STBI_rgb
 		);
 
 		if (!image) {
