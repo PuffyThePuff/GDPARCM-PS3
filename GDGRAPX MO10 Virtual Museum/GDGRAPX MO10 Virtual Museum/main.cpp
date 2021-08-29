@@ -124,12 +124,6 @@ int main() {
 	glm::vec3 camFront = glm::vec3(0.0f, 0.0f, -1.0f);
 	glm::vec3 camUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
-	float translateFactorX = 0.0f;
-	float translateFactorZ = 0.0f;
-	float rotFactorPitch = 0.0f;
-	float rotFactorYaw = 0.0f;
-
-
 	//depth testing
 	glEnable(GL_DEPTH_TEST);
 	//glDepthFunc(GL_ALWAYS); // set the depth test function
@@ -217,28 +211,35 @@ int main() {
 		}
 
 		if (state[2] == GLFW_PRESS) {
-			camPosition -= 2.0f * deltaTime * glm::normalize(glm::cross(camUp, camFront));
-		}
-
-		if (state[3] == GLFW_PRESS) {
 			camPosition += 2.0f * deltaTime * glm::normalize(glm::cross(camUp, camFront));
 		}
 
+		if (state[3] == GLFW_PRESS) {
+			camPosition -= 2.0f * deltaTime * glm::normalize(glm::cross(camUp, camFront));
+		}
+
 		if (state[4] == GLFW_PRESS) {
-			//rotFactorPitch += 45.0f * deltaTime;
+			inputTrans = glm::mat4(1.0f);
+			inputTrans = glm::rotate(inputTrans, 3.0f * deltaTime, glm::vec3(1.0f, 0.0f, 0.0f));
+			camFront = inputTrans * glm::vec4(camFront, 1.0f);
 		}
 
 		if (state[5] == GLFW_PRESS) {
-			//rotFactorPitch -= 45.0f * deltaTime;
+			inputTrans = glm::mat4(1.0f);
+			inputTrans = glm::rotate(inputTrans, -3.0f * deltaTime, glm::vec3(1.0f, 0.0f, 0.0f));
+			camFront = inputTrans * glm::vec4(camFront, 1.0f);
 		}
 
 		if (state[6] == GLFW_PRESS) {
-			//rotFactorYaw += 45.0f * deltaTime;
-			//inputTrans = glm::mat4()
+			inputTrans = glm::mat4(1.0f);
+			inputTrans = glm::rotate(inputTrans, 3.0f * deltaTime, glm::vec3(0.0f, 1.0f, 0.0f));
+			camFront = inputTrans * glm::vec4(camFront, 1.0f);
 		}
 
 		if (state[7] == GLFW_PRESS) {
-			//rotFactorYaw -= 45.0f * deltaTime;
+			inputTrans = glm::mat4(1.0f);
+			inputTrans = glm::rotate(inputTrans, -3.0f * deltaTime, glm::vec3(0.0f, 1.0f, 0.0f));
+			camFront = inputTrans * glm::vec4(camFront, 1.0f);
 		}
 
 		view = glm::lookAt(camPosition, camPosition + camFront, camUp);
