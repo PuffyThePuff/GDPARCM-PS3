@@ -186,7 +186,7 @@ int main() {
 		state[6] = glfwGetKey(window, GLFW_KEY_LEFT);
 		state[7] = glfwGetKey(window, GLFW_KEY_RIGHT);
 
-		// DrawSkybox(skybox, skyboxShaderProgram, view, projection);
+		DrawSkybox(skybox, skyboxShaderProgram, view, projection);
 
 		//draw earth
 		glBindVertexArray(earthObjData.vaoId);
