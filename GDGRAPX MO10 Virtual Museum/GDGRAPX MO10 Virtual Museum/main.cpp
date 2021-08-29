@@ -9,18 +9,20 @@ Virtual Museum Beta
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <vector>
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tiny_obj_loader.h"
 #include "glm/glm.hpp"
 #include "obj_mesh.h";
 #include "shader.h"
+#include "skybox.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 int main() {
-
+	stbi_set_flip_vertically_on_load(true);
 #pragma region Initialization
-	// initialize glfw
+	//initialize glfw
 	if (glfwInit() != GLFW_TRUE) {
 		fprintf(stderr, "Failed to initialized! \n");
 		return -1;
@@ -31,16 +33,16 @@ int main() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	// create window
+	// create window 
 	GLFWwindow* window;
-	window = glfwCreateWindow(1024, 768, "Nathaniel Filoteo", NULL, NULL);
+	window = glfwCreateWindow(1024, 768, "Virtual Museum", NULL, NULL);
 	if (window == NULL) {
 		fprintf(stderr, "Failed to load window! \n");
 		return -1;
 	}
 	glfwMakeContextCurrent(window);
 
-	// initialize glew
+	//initialize glew
 	glewExperimental = true;
 	if (glewInit() != GLEW_OK) {
 		fprintf(stderr, "Failed to initialize GLEW\n");
@@ -51,14 +53,33 @@ int main() {
 
 #pragma region Mesh Loading
 
-	ObjData bunnyObjData;
-	LoadObjFile(&bunnyObjData, "bunny.obj");
-	GLfloat bunnyOffsets[] = { 0.0f, 0.0f, 0.0f };
+	ObjData earthObjData;
+	LoadObjFile(&earthObjData, "Earth/Earth.obj");
+	GLfloat offsets[] = { 0.0f, 0.0f, 0.0f };
 	LoadObjToMemory(
-		&bunnyObjData,
+		&earthObjData,
 		1.0f,
-		bunnyOffsets
+		offsets
 	);
+
+	ObjData cubeObjData;
+	LoadObjFile(&cubeObjData, "cube.obj");
+	GLfloat cubeOffsets[] = { 0.0f, 0.0f, 0.0f };
+	LoadObjToMemory(
+		&cubeObjData,
+		1.0f,
+		cubeOffsets
+	);
+
+	std::vector<std::string> faces{
+		"right.png",
+		"left.png",
+		"bottom.png",
+		"top.png",
+		"front.png",
+		"back.png"
+	};
+	SkyboxData skybox = LoadSkybox("Assets/Skybox", faces);
 
 #pragma endregion
 
@@ -67,31 +88,56 @@ int main() {
 	GLuint shaderProgram = LoadShaders("Shaders/vertex.shader", "Shaders/fragment.shader");
 	glUseProgram(shaderProgram);
 
-	GLuint colorLoc = glGetUniformLocation(shaderProgram, "u_color");
-	glUniform3f(colorLoc, 0.81f, 0.25f, 0.35f);
+	GLuint skyboxShaderProgram = LoadShaders("Shaders/skybox_vertex.shader", "Shaders/skybox_fragment.shader");
 
-	// initialize transforms
+	GLuint colorLoc = glGetUniformLocation(shaderProgram, "u_color");
+	glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
+
+
+	// initialize MVP
 	GLuint modelTransformLoc = glGetUniformLocation(shaderProgram, "u_model");
+	GLuint viewLoc = glGetUniformLocation(shaderProgram, "u_view");
 	GLuint projectionLoc = glGetUniformLocation(shaderProgram, "u_projection");
 
-	glm::mat4 trans = glm::mat4(1.0f); // identity
+	glm::mat4 trans = glm::mat4(1.0f);
 	glUniformMatrix4fv(modelTransformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+
+	// glm::mat4 inputTrans = glm::mat4(1.0f);
 
 	// define projection matrix
 	glm::mat4 projection = glm::mat4(1.0f);
-	// glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+	//glm::mat4 projectionOrtho = glm::mat4(1.0f);
+	//glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
 #pragma endregion
 
 	// set bg color to sky blue
 	glClearColor(0.6f, 0.84f, 0.84f, 0.0f);
 
-	// var for rotations
-	float z = -3.0f;
-	bool isMovingForward = true;
+	// va for inputs
 	float currentTime = glfwGetTime();
 	float prevTime = 0.0f;
 	float deltaTime = 0.0f;
+
+	int state[8];
+	glm::vec3 camPosition = glm::vec3(0.0f, 0.5f, 10.0f);
+	glm::vec3 camFront = glm::vec3(0.0f, 0.0f, -1.0f);
+	glm::vec3 camUp = glm::vec3(0.0f, 1.0f, 0.0f);
+	/*
+	float translateFactorX = 0.0f;
+	float translateFactorZ = 0.0f;
+	float rotFactorPitch = 0.0f;
+	float rotFactorYaw = 0.0f;
+	*/
+
+	//depth testing
+	glEnable(GL_DEPTH_TEST);
+	//glDepthFunc(GL_ALWAYS); // set the depth test function
+
+	//face culling
+	glEnable(GL_CULL_FACE);
+	//glCullFace(GL_BACK); // set which face to cull
+	//glFrontFace(GL_CCW); // set the front face orientation
 
 	while (!glfwWindowShouldClose(window)) {
 
@@ -112,54 +158,116 @@ int main() {
 		// Orthographic with stretching
 		//projection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.1f, 10.0f);
 
-		// Orthographic with corection for stretching, resize window to see difference with previous example
-		// projection = glm::ortho(-ratio, ratio, -1.0f, 1.0f, 0.1f, 10.0f);
+		//Orthographic with corection for stretching, resize window to see difference with previous example
+		//projectionOrtho = glm::ortho(-ratio, ratio, -1.0f, 1.0f, 0.1f, 10.0f);
 
 		// Perspective Projection
-		projection  = glm::perspective(glm::radians(60.0f), ratio, 0.1f, 10.0f),
+		projection = glm::perspective(glm::radians(90.0f), ratio, 0.1f, 10.0f);
 
 		// Set projection matrix in shader
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
 #pragma endregion
 
-		glClear(GL_COLOR_BUFFER_BIT);
+#pragma region View
+		glm::mat4 view = glm::lookAt(camPosition, camPosition + camFront, camUp);
 
-		// toggle to render with GL_FILL or GL_LINE
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+
+#pragma endregion
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		//toggle to render wit GL_FILL or GL_LINE
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 #pragma region Draw
+		state[0] = glfwGetKey(window, GLFW_KEY_W);
+		state[1] = glfwGetKey(window, GLFW_KEY_S);
+		state[2] = glfwGetKey(window, GLFW_KEY_A);
+		state[3] = glfwGetKey(window, GLFW_KEY_D);
 
-		//draw bunny
-		glBindVertexArray(bunnyObjData.vaoId);
+		state[4] = glfwGetKey(window, GLFW_KEY_UP);
+		state[5] = glfwGetKey(window, GLFW_KEY_DOWN);
+		state[6] = glfwGetKey(window, GLFW_KEY_LEFT);
+		state[7] = glfwGetKey(window, GLFW_KEY_RIGHT);
+
+		// DrawSkybox(skybox, skyboxShaderProgram, view, projection);
+
+		//draw earth
+		glBindVertexArray(earthObjData.vaoId);
+		glUseProgram(shaderProgram);
 
 		// transforms
+
 		trans = glm::mat4(1.0f);
-		trans = glm::translate(trans, glm::vec3(-0.05f, -0.1f, z));
-		trans = glm::scale(trans, glm::vec3(0.9f, 0.9f, 0.9f));
+		/*
+		trans = glm::rotate(trans, glm::radians(theta), glm::vec3(0.0f, 1.0f, 0.0f));
+		trans = glm::translate(trans, glm::vec3(8.0f, 0.0f, 0.0f));
+		trans = glm::scale(trans, glm::vec3(0.25f, 0.25f, 0.25f));
+		trans = glm::rotate(trans, glm::radians(5 * theta), glm::vec3(0.0f, 1.0f, 0.0f));
+		*/
+
+		if (state[0] == GLFW_PRESS) {
+			camPosition.z -= 2.0f * deltaTime;
+		}
+
+		if (state[1] == GLFW_PRESS) {
+			camPosition.z += 2.0f * deltaTime;
+		}
+
+		if (state[2] == GLFW_PRESS) {
+			camPosition.x -= 2.0f * deltaTime;
+		}
+
+		if (state[3] == GLFW_PRESS) {
+			camPosition.x += 2.0f * deltaTime;
+		}
+
+		if (state[4] == GLFW_PRESS) {
+			// rotFactorPitch += 45.0f * deltaTime;
+		}
+
+		if (state[5] == GLFW_PRESS) {
+			// rotFactorPitch -= 45.0f * deltaTime;
+		}
+
+		if (state[6] == GLFW_PRESS) {
+			//rotFactorYaw += 45.0f * deltaTime;
+		}
+
+		if (state[7] == GLFW_PRESS) {
+			//rotFactorYaw -= 45.0f * deltaTime;
+		}
+
+		view = glm::lookAt(camPosition, camPosition + camFront, camUp);
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
 		//send to shader
 		glUniformMatrix4fv(modelTransformLoc, 1, GL_FALSE, glm::value_ptr(trans));
 
-		glDrawElements(GL_TRIANGLES, bunnyObjData.numFaces, GL_UNSIGNED_INT, (void*)0);
+		glActiveTexture(GL_TEXTURE0);
+		GLuint earthTexture = earthObjData.textures[earthObjData.materials[0].diffuse_texname];
+		glBindTexture(GL_TEXTURE_2D, earthTexture);
 
-		// increment translation by deltaTime
+		//draw celestial body
+		glDrawElements(GL_TRIANGLES, earthObjData.numFaces, GL_UNSIGNED_INT, (void*)0);
+
+		//unbindtexture after rendering
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		glBindVertexArray(cubeObjData.vaoId);
+		glUniformMatrix4fv(modelTransformLoc, 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+		glDrawElements(GL_TRIANGLES, cubeObjData.numFaces, GL_UNSIGNED_INT, (void*)0);
+
 		currentTime = glfwGetTime();
 		deltaTime = currentTime - prevTime;
-		if (isMovingForward) {
-			z += 0.8 * deltaTime;
-			if(z >= -0.3f) isMovingForward = false;
-		}
-		else {
-			z -= 0.8 * deltaTime;
-			if(z <= -1.8f) isMovingForward = true;
-		}
 		prevTime = currentTime;
 
 		//--- stop drawing here ---
+#pragma endregion
 
 		glfwSwapBuffers(window);
-#pragma endregion
 		//listen for glfw input events
 		glfwPollEvents();
 	}
