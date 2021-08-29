@@ -102,7 +102,7 @@ int main() {
 	glm::mat4 trans = glm::mat4(1.0f);
 	glUniformMatrix4fv(modelTransformLoc, 1, GL_FALSE, glm::value_ptr(trans));
 
-	// glm::mat4 inputTrans = glm::mat4(1.0f);
+	glm::mat4 inputTrans = glm::mat4(1.0f);
 
 	// define projection matrix
 	glm::mat4 projection = glm::mat4(1.0f);
@@ -123,12 +123,12 @@ int main() {
 	glm::vec3 camPosition = glm::vec3(0.0f, 0.5f, 10.0f);
 	glm::vec3 camFront = glm::vec3(0.0f, 0.0f, -1.0f);
 	glm::vec3 camUp = glm::vec3(0.0f, 1.0f, 0.0f);
-	/*
+
 	float translateFactorX = 0.0f;
 	float translateFactorZ = 0.0f;
 	float rotFactorPitch = 0.0f;
 	float rotFactorYaw = 0.0f;
-	*/
+
 
 	//depth testing
 	glEnable(GL_DEPTH_TEST);
@@ -209,31 +209,32 @@ int main() {
 		*/
 
 		if (state[0] == GLFW_PRESS) {
-			camPosition.z -= 2.0f * deltaTime;
+			camPosition += 2.0f * deltaTime * camFront;
 		}
 
 		if (state[1] == GLFW_PRESS) {
-			camPosition.z += 2.0f * deltaTime;
+			camPosition -= 2.0f * deltaTime * camFront;
 		}
 
 		if (state[2] == GLFW_PRESS) {
-			camPosition.x -= 2.0f * deltaTime;
+			camPosition -= 2.0f * deltaTime * glm::normalize(glm::cross(camUp, camFront));
 		}
 
 		if (state[3] == GLFW_PRESS) {
-			camPosition.x += 2.0f * deltaTime;
+			camPosition += 2.0f * deltaTime * glm::normalize(glm::cross(camUp, camFront));
 		}
 
 		if (state[4] == GLFW_PRESS) {
-			// rotFactorPitch += 45.0f * deltaTime;
+			//rotFactorPitch += 45.0f * deltaTime;
 		}
 
 		if (state[5] == GLFW_PRESS) {
-			// rotFactorPitch -= 45.0f * deltaTime;
+			//rotFactorPitch -= 45.0f * deltaTime;
 		}
 
 		if (state[6] == GLFW_PRESS) {
 			//rotFactorYaw += 45.0f * deltaTime;
+			//inputTrans = glm::mat4()
 		}
 
 		if (state[7] == GLFW_PRESS) {
