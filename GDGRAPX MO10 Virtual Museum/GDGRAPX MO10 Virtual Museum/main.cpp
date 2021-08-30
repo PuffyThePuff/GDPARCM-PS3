@@ -22,7 +22,7 @@ Virtual Museum Beta
 int main() {
 	stbi_set_flip_vertically_on_load(true);
 #pragma region Initialization
-	//initialize glfw
+	// initialize glfw
 	if (glfwInit() != GLFW_TRUE) {
 		fprintf(stderr, "Failed to initialized! \n");
 		return -1;
@@ -42,7 +42,7 @@ int main() {
 	}
 	glfwMakeContextCurrent(window);
 
-	//initialize glew
+	// initialize glew
 	glewExperimental = true;
 	if (glewInit() != GLEW_OK) {
 		fprintf(stderr, "Failed to initialize GLEW\n");
@@ -52,15 +52,6 @@ int main() {
 
 
 #pragma region Mesh Loading
-	ObjData earthObjData;
-	LoadObjFile(&earthObjData, "Earth/Earth.obj");
-	GLfloat offsets[] = { 0.0f, 0.0f, 0.0f };
-	LoadObjToMemory(
-		&earthObjData,
-		1.0f,
-		offsets
-	);
-
 	ObjData meteorObjData;
 	LoadObjFile(&meteorObjData, "Meteor/Meteor.obj");
 	GLfloat offsets2[] = { 0.0f, 0.0f, 0.0f };
@@ -92,7 +83,6 @@ int main() {
 	GLuint colorLoc = glGetUniformLocation(shaderProgram, "u_color");
 	glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
 
-
 	// initialize MVP
 	GLuint modelTransformLoc = glGetUniformLocation(shaderProgram, "u_model");
 	GLuint viewLoc = glGetUniformLocation(shaderProgram, "u_view");
@@ -105,15 +95,13 @@ int main() {
 
 	// define projection matrix
 	glm::mat4 projection = glm::mat4(1.0f);
-	//glm::mat4 projectionOrtho = glm::mat4(1.0f);
-	//glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
 #pragma endregion
 
 	// set bg color to sky blue
 	glClearColor(0.6f, 0.84f, 0.84f, 0.0f);
 
-	// va for inputs
+	// variables for inputs
 	float currentTime = glfwGetTime();
 	float prevTime = 0.0f;
 	float deltaTime = 0.0f;
@@ -123,14 +111,11 @@ int main() {
 	glm::vec3 camFront = glm::vec3(0.0f, 0.0f, -1.0f);
 	glm::vec3 camUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
-	//depth testing
+	// depth testing
 	glEnable(GL_DEPTH_TEST);
-	//glDepthFunc(GL_ALWAYS); // set the depth test function
 
-	//face culling
+	// face culling
 	glEnable(GL_CULL_FACE);
-	//glCullFace(GL_BACK); // set which face to cull
-	//glFrontFace(GL_CCW); // set the front face orientation
 
 	while (!glfwWindowShouldClose(window)) {
 
@@ -145,15 +130,6 @@ int main() {
 #pragma endregion
 
 #pragma region Projection
-		// Orthographic projection but make units same as pixels. origin is lower left of window
-		// projection = glm::ortho(0.0f, (GLfloat)width, 0.0f, (GLfloat)height, 0.1f, 10.0f); // when using this scale objects really high at pixel unity size
-
-		// Orthographic with stretching
-		//projection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.1f, 10.0f);
-
-		//Orthographic with corection for stretching, resize window to see difference with previous example
-		//projectionOrtho = glm::ortho(-ratio, ratio, -1.0f, 1.0f, 0.1f, 10.0f);
-
 		// Perspective Projection
 		projection = glm::perspective(glm::radians(90.0f), ratio, 0.1f, 10.0f);
 
@@ -164,14 +140,13 @@ int main() {
 
 #pragma region View
 		glm::mat4 view = glm::lookAt(camPosition, camPosition + camFront, camUp);
-
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
 #pragma endregion
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//toggle to render wit GL_FILL or GL_LINE
+		// (toggle to render wit GL_FILL or GL_LINE)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 #pragma region Draw
@@ -185,34 +160,8 @@ int main() {
 		state[6] = glfwGetKey(window, GLFW_KEY_LEFT);
 		state[7] = glfwGetKey(window, GLFW_KEY_RIGHT);
 
+
 		DrawSkybox(skybox, skyboxShaderProgram, view, projection);
-
-		//draw earth
-		glBindVertexArray(earthObjData.vaoId);
-		glUseProgram(shaderProgram);
-
-		// transforms
-
-		trans = glm::mat4(1.0f);
-		/*
-		trans = glm::rotate(trans, glm::radians(theta), glm::vec3(0.0f, 1.0f, 0.0f));
-		trans = glm::translate(trans, glm::vec3(8.0f, 0.0f, 0.0f));
-		trans = glm::scale(trans, glm::vec3(0.25f, 0.25f, 0.25f));
-		trans = glm::rotate(trans, glm::radians(5 * theta), glm::vec3(0.0f, 1.0f, 0.0f));
-		*/
-
-		//send to shader
-		glUniformMatrix4fv(modelTransformLoc, 1, GL_FALSE, glm::value_ptr(trans));
-
-		glActiveTexture(GL_TEXTURE0);
-		GLuint earthTexture = earthObjData.textures[earthObjData.materials[0].diffuse_texname];
-		glBindTexture(GL_TEXTURE_2D, earthTexture);
-
-		//draw celestial body
-		glDrawElements(GL_TRIANGLES, earthObjData.numFaces, GL_UNSIGNED_INT, (void*)0);
-
-		//unbind texture after rendering
-		glBindTexture(GL_TEXTURE_2D, 0);
 
 		glBindVertexArray(meteorObjData.vaoId);
 		glActiveTexture(GL_TEXTURE0);
@@ -268,11 +217,11 @@ int main() {
 		deltaTime = currentTime - prevTime;
 		prevTime = currentTime;
 
-		//--- stop drawing here ---
+		// --- stop drawing here ---
 #pragma endregion
 
 		glfwSwapBuffers(window);
-		//listen for glfw input events
+		// listen for glfw input events
 		glfwPollEvents();
 	}
 	return 0;
