@@ -52,7 +52,6 @@ int main() {
 
 
 #pragma region Mesh Loading
-
 	ObjData earthObjData;
 	LoadObjFile(&earthObjData, "Earth/Earth.obj");
 	GLfloat offsets[] = { 0.0f, 0.0f, 0.0f };
@@ -62,13 +61,13 @@ int main() {
 		offsets
 	);
 
-	ObjData cubeObjData;
-	LoadObjFile(&cubeObjData, "cube.obj");
-	GLfloat cubeOffsets[] = { 0.0f, 0.0f, 0.0f };
+	ObjData meteorObjData;
+	LoadObjFile(&meteorObjData, "Meteor/Meteor.obj");
+	GLfloat offsets2[] = { 0.0f, 0.0f, 0.0f };
 	LoadObjToMemory(
-		&cubeObjData,
+		&meteorObjData,
 		1.0f,
-		cubeOffsets
+		offsets2
 	);
 
 	std::vector<std::string> faces{
@@ -202,6 +201,26 @@ int main() {
 		trans = glm::rotate(trans, glm::radians(5 * theta), glm::vec3(0.0f, 1.0f, 0.0f));
 		*/
 
+		//send to shader
+		glUniformMatrix4fv(modelTransformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+
+		glActiveTexture(GL_TEXTURE0);
+		GLuint earthTexture = earthObjData.textures[earthObjData.materials[0].diffuse_texname];
+		glBindTexture(GL_TEXTURE_2D, earthTexture);
+
+		//draw celestial body
+		glDrawElements(GL_TRIANGLES, earthObjData.numFaces, GL_UNSIGNED_INT, (void*)0);
+
+		//unbind texture after rendering
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		glBindVertexArray(meteorObjData.vaoId);
+		glActiveTexture(GL_TEXTURE0);
+		GLuint meteorTexture = meteorObjData.textures[meteorObjData.materials[0].diffuse_texname];
+		glBindTexture(GL_TEXTURE_2D, meteorTexture);
+		glDrawElements(GL_TRIANGLES, meteorObjData.numFaces, GL_UNSIGNED_INT, (void*)0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
 		if (state[0] == GLFW_PRESS) {
 			camPosition += 2.0f * deltaTime * camFront;
 		}
@@ -244,23 +263,6 @@ int main() {
 
 		view = glm::lookAt(camPosition, camPosition + camFront, camUp);
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-
-		//send to shader
-		glUniformMatrix4fv(modelTransformLoc, 1, GL_FALSE, glm::value_ptr(trans));
-
-		glActiveTexture(GL_TEXTURE0);
-		GLuint earthTexture = earthObjData.textures[earthObjData.materials[0].diffuse_texname];
-		glBindTexture(GL_TEXTURE_2D, earthTexture);
-
-		//draw celestial body
-		glDrawElements(GL_TRIANGLES, earthObjData.numFaces, GL_UNSIGNED_INT, (void*)0);
-
-		//unbindtexture after rendering
-		glBindTexture(GL_TEXTURE_2D, 0);
-
-		glBindVertexArray(cubeObjData.vaoId);
-		glUniformMatrix4fv(modelTransformLoc, 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
-		glDrawElements(GL_TRIANGLES, cubeObjData.numFaces, GL_UNSIGNED_INT, (void*)0);
 
 		currentTime = glfwGetTime();
 		deltaTime = currentTime - prevTime;
