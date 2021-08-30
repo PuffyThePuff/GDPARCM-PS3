@@ -164,6 +164,7 @@ int main() {
 		DrawSkybox(skybox, skyboxShaderProgram, view, projection);
 
 		glBindVertexArray(meteorObjData.vaoId);
+		glUseProgram(shaderProgram);
 		glActiveTexture(GL_TEXTURE0);
 		GLuint meteorTexture = meteorObjData.textures[meteorObjData.materials[0].diffuse_texname];
 		glBindTexture(GL_TEXTURE_2D, meteorTexture);
