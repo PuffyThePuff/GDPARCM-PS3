@@ -70,6 +70,7 @@ int main() {
 		"back.png"
 	};
 	SkyboxData skybox = LoadSkybox("Assets/Skybox", faces);
+	SkyboxData daybox = LoadSkybox("Assets/Skybox/Day", faces);
 
 #pragma endregion
 
@@ -122,6 +123,7 @@ int main() {
 #pragma region Viewport
 		float ratio;
 		int width, height;
+		bool daytime = 0;
 
 		glfwGetFramebufferSize(window, &width, &height);
 		ratio = width / (float)height;
@@ -160,8 +162,12 @@ int main() {
 		state[6] = glfwGetKey(window, GLFW_KEY_LEFT);
 		state[7] = glfwGetKey(window, GLFW_KEY_RIGHT);
 
-
-		DrawSkybox(skybox, skyboxShaderProgram, view, projection);
+		if (daytime) {
+			DrawSkybox(daybox, skyboxShaderProgram, view, projection);
+		}
+		else {
+			DrawSkybox(daybox, skyboxShaderProgram, view, projection);
+		}
 
 		glBindVertexArray(meteorObjData.vaoId);
 		glUseProgram(shaderProgram);
