@@ -12,8 +12,8 @@ Virtual Museum Beta
 #include <vector>
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tiny_obj_loader.h"
-#include "glm/glm.hpp"
-#include "obj_mesh.h";
+#include "glm/glm.hpp";
+#include "obj_mesh.h"
 #include "shader.h"
 #include "skybox.h"
 #include <glm/gtc/matrix_transform.hpp>
@@ -75,7 +75,7 @@ int main() {
 
 #pragma region Shader Loading
 
-	GLuint shaderProgram = LoadShaders("Shaders/vertex.shader", "Shaders/fragment.shader");
+	GLuint shaderProgram = LoadShaders("Shaders/directional_vertex.shader", "Shaders/directional_fragment.shader");
 	glUseProgram(shaderProgram);
 
 	GLuint skyboxShaderProgram = LoadShaders("Shaders/skybox_vertex.shader", "Shaders/skybox_fragment.shader");
@@ -88,6 +88,9 @@ int main() {
 	GLuint viewLoc = glGetUniformLocation(shaderProgram, "u_view");
 	GLuint projectionLoc = glGetUniformLocation(shaderProgram, "u_projection");
 
+	GLuint normalTransformLoc = glGetUniformLocation(shaderProgram, "u_normal");
+	GLuint cameraPosLoc = glGetUniformLocation(shaderProgram, "u_camera_position");
+
 	glm::mat4 trans = glm::mat4(1.0f);
 	glUniformMatrix4fv(modelTransformLoc, 1, GL_FALSE, glm::value_ptr(trans));
 
@@ -95,6 +98,21 @@ int main() {
 
 	// define projection matrix
 	glm::mat4 projection = glm::mat4(1.0f);
+
+	//GLuint lightPosLoc = glGetUniformLocation(shaderProgram, "u_light_position");
+	//glUniform3f(lightPosLoc, 1.0f, 5.0f, 3.0f);
+
+	glm::vec3 lightDirection = glm::vec3(1.0f, 0.0f, 0.0f);
+	GLuint lightDirectionLoc = glGetUniformLocation(shaderProgram, "u_light_direction");
+	glUniform3f(lightDirectionLoc, lightDirection.x, lightDirection.y, lightDirection.z);
+
+	glm::mat4 lightDirectionTrans = glm::mat4(1.0f);
+
+	GLuint ambientColorLoc = glGetUniformLocation(shaderProgram, "u_ambient_color");
+	glUniform3f(ambientColorLoc, 0.2f, 0.2f, 0.2f);
+
+	GLuint lightColorLoc = glGetUniformLocation(shaderProgram, "u_light_color");
+	glUniform3f(lightColorLoc, 0.6f, 0.84f, 0.84f);
 
 #pragma endregion
 
@@ -140,6 +158,7 @@ int main() {
 
 #pragma region View
 		glm::mat4 view = glm::lookAt(camPosition, camPosition + camFront, camUp);
+		glUniform3f(cameraPosLoc, camPosition.x, camPosition.y, camPosition.z);
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
 #pragma endregion
@@ -166,10 +185,14 @@ int main() {
 		glBindVertexArray(meteorObjData.vaoId);
 		glUseProgram(shaderProgram);
 		glActiveTexture(GL_TEXTURE0);
+
 		GLuint meteorTexture = meteorObjData.textures[meteorObjData.materials[0].diffuse_texname];
 		glBindTexture(GL_TEXTURE_2D, meteorTexture);
 		glDrawElements(GL_TRIANGLES, meteorObjData.numFaces, GL_UNSIGNED_INT, (void*)0);
 		glBindTexture(GL_TEXTURE_2D, 0);
+
+		glm::mat4 normalTrans = glm::transpose(glm::inverse(trans));
+		glUniformMatrix4fv(normalTransformLoc, 1, GL_FALSE, glm::value_ptr(normalTrans));
 
 		if (state[0] == GLFW_PRESS) {
 			camPosition += 2.0f * deltaTime * camFront;
@@ -212,7 +235,13 @@ int main() {
 		}
 
 		view = glm::lookAt(camPosition, camPosition + camFront, camUp);
+		glUniform3f(cameraPosLoc, camPosition.x, camPosition.y, camPosition.z);
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+
+		lightDirectionTrans = glm::mat4(1.0f);
+		lightDirectionTrans = glm::rotate(lightDirectionTrans, glm::radians(6.f * deltaTime), glm::vec3(0.0f, 0.0f, 1.0f));
+		lightDirection = lightDirectionTrans * glm::vec4(lightDirection, 1.0f);
+		glUniform3f(lightDirectionLoc, lightDirection.x, lightDirection.y, lightDirection.z);
 
 		currentTime = glfwGetTime();
 		deltaTime = currentTime - prevTime;
