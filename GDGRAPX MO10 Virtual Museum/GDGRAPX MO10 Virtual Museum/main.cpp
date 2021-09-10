@@ -63,7 +63,7 @@ int main() {
 
 	ObjData streetLightObjData;
 	LoadObjFile(&streetLightObjData, "Street Light/Street Light.obj");
-	GLfloat offsets2[] = { -1.0f, 0.0f, -5.0f };
+	GLfloat offsets2[] = { -1.5f, 0.0f, -3.5f };
 	LoadObjToMemory(
 		&streetLightObjData,
 		1.0f,
@@ -85,10 +85,10 @@ int main() {
 
 #pragma region Shader Loading
 
+	GLuint skyboxShaderProgram = LoadShaders("Shaders/skybox_vertex.shader", "Shaders/skybox_fragment.shader");
+
 	GLuint shaderProgram = LoadShaders("Shaders/directional_vertex.shader", "Shaders/directional_fragment.shader");
 	glUseProgram(shaderProgram);
-
-	GLuint skyboxShaderProgram = LoadShaders("Shaders/skybox_vertex.shader", "Shaders/skybox_fragment.shader");
 
 	GLuint colorLoc = glGetUniformLocation(shaderProgram, "u_color");
 	glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
@@ -213,10 +213,17 @@ int main() {
 		glUseProgram(shaderProgram);
 		glActiveTexture(GL_TEXTURE0);
 
+		//trans = glm::mat4(1.0f);
+		//trans = glm::rotate(trans, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		//glUniformMatrix4fv(modelTransformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+
 		GLuint streetLightTexture = streetLightObjData.textures[streetLightObjData.materials[0].diffuse_texname];
 		glBindTexture(GL_TEXTURE_2D, streetLightTexture);
 		glDrawElements(GL_TRIANGLES, streetLightObjData.numFaces, GL_UNSIGNED_INT, (void*)0);
 		glBindTexture(GL_TEXTURE_2D, 0);
+
+		glm::mat4 normalTrans2 = glm::transpose(glm::inverse(trans));
+		glUniformMatrix4fv(normalTransformLoc, 1, GL_FALSE, glm::value_ptr(normalTrans2));
 
 		if (state[0] == GLFW_PRESS) {
 			camPosition += 2.0f * deltaTime * camFront;
