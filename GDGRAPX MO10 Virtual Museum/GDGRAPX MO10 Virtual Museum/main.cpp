@@ -54,9 +54,18 @@ int main() {
 #pragma region Mesh Loading
 	ObjData meteorObjData;
 	LoadObjFile(&meteorObjData, "Meteor/Meteor.obj");
-	GLfloat offsets2[] = { 0.0f, 0.0f, 0.0f };
+	GLfloat offsets[] = { 0.0f, 0.0f, 0.0f };
 	LoadObjToMemory(
 		&meteorObjData,
+		1.0f,
+		offsets
+	);
+
+	ObjData streetLightObjData;
+	LoadObjFile(&streetLightObjData, "Street Light/Street Light.obj");
+	GLfloat offsets2[] = { -1.0f, 0.0f, -5.0f };
+	LoadObjToMemory(
+		&streetLightObjData,
 		1.0f,
 		offsets2
 	);
@@ -113,7 +122,7 @@ int main() {
 	glUniform3f(ambientColorLoc, 0.2f, 0.2f, 0.2f);
 
 	GLuint lightColorLoc = glGetUniformLocation(shaderProgram, "u_light_color");
-	glUniform3f(lightColorLoc, 0.6f, 0.84f, 0.84f);
+	glUniform3f(lightColorLoc, 1.0f, 1.0f, 1.0f);
 
 #pragma endregion
 
@@ -199,6 +208,15 @@ int main() {
 
 		glm::mat4 normalTrans = glm::transpose(glm::inverse(trans));
 		glUniformMatrix4fv(normalTransformLoc, 1, GL_FALSE, glm::value_ptr(normalTrans));
+
+		glBindVertexArray(streetLightObjData.vaoId);
+		glUseProgram(shaderProgram);
+		glActiveTexture(GL_TEXTURE0);
+
+		GLuint streetLightTexture = streetLightObjData.textures[streetLightObjData.materials[0].diffuse_texname];
+		glBindTexture(GL_TEXTURE_2D, streetLightTexture);
+		glDrawElements(GL_TRIANGLES, streetLightObjData.numFaces, GL_UNSIGNED_INT, (void*)0);
+		glBindTexture(GL_TEXTURE_2D, 0);
 
 		if (state[0] == GLFW_PRESS) {
 			camPosition += 2.0f * deltaTime * camFront;
