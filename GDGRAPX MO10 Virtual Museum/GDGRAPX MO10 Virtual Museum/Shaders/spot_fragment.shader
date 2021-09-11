@@ -15,14 +15,21 @@ uniform sampler2D texture_diffuse;
 
 out vec4 FragColor;
 
-float attenuate(float value, float maximum) {
-	float clampVal = min(value, maximum);
-	return 1.0 / (pow(5 * clampVal / maximum, 2) + 1);
+float attenuate(float value, float minimum, float maximum) {
+	return 1.0 - (clamp(value, minimum, maximum) - minimum) / (maximum - minimum);
+}
+
+float simple(float value, float maximum) {
+	float clampVal;
+	if (value > maximum) clampVal = 0.0;
+	else clampVal = 1.0;
+	return clampVal;
 }
 
 void main()
 {
 	vec3 lightDirection = normalize(u_light_position - fragPosition);
+	vec3 lightFocus = normalize(-u_light_direction);
 	float lightDistance = length(u_light_position - fragPosition);
 
 	float specularStrength = 1.0f;
@@ -33,7 +40,9 @@ void main()
 	vec3 specular = specularStrength * spec * u_light_color;
 	vec3 diffuse = vec3(max(dot(normal, lightDirection), 0.0)) * u_light_color;
 	vec3 ambient = u_ambient_color * u_light_color;
-	float gradient = attenuate(lightDistance, 100.0f);
+
+	float theta = abs(acos(dot(lightDirection, lightFocus)));
+	float gradient = attenuate(theta, 0.01, 0.02);
 
 	FragColor = vec4(ambient + gradient * (diffuse + specular), 1.0) * texture(texture_diffuse, UV);
 }
