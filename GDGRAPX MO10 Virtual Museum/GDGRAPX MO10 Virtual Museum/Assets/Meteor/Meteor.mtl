@@ -2,4 +2,3 @@ newmtl Meteor
 Kd 1 1 1
 d 1
 map_Kd Meteor.png
-map_Bump Meteor_Normal.png

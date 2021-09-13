@@ -2,7 +2,7 @@
 Jose Miguel D. Bravo
 Nathaniel Francis S. Filoteo
 GDGRAPX S11
-Virtual Museum Beta
+Virtual Museum
 */
 
 #include <stdio.h>
@@ -70,11 +70,11 @@ int main() {
 		offsets2
 	);
 
-	ObjData speakerObjData;
-	LoadObjFile(&speakerObjData, "Speaker/Speaker.obj");
-	GLfloat offsets3[] = { -15.0f, 0.0f, 0.0f };
+	ObjData chairObjData;
+	LoadObjFile(&chairObjData, "Chair/Chair.obj");
+	GLfloat offsets3[] = { -5.0f, 0.0f, 0.0f };
 	LoadObjToMemory(
-		&speakerObjData,
+		&chairObjData,
 		1.0f,
 		offsets3
 	);
@@ -338,7 +338,7 @@ int main() {
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 
-		glBindVertexArray(speakerObjData.vaoId);
+		glBindVertexArray(chairObjData.vaoId);
 		if (daytime) {
 			glUseProgram(directionalShaderProgram);
 
@@ -367,9 +367,9 @@ int main() {
 		glUniformMatrix4fv(normalTransformLoc, 1, GL_FALSE, glm::value_ptr(normalTrans3));
 
 		glActiveTexture(GL_TEXTURE0);
-		GLuint speakerTexture = speakerObjData.textures[speakerObjData.materials[0].diffuse_texname];
-		glBindTexture(GL_TEXTURE_2D, speakerTexture);
-		glDrawElements(GL_TRIANGLES, speakerObjData.numFaces, GL_UNSIGNED_INT, (void*)0);
+		GLuint chairTexture = chairObjData.textures[chairObjData.materials[0].diffuse_texname];
+		glBindTexture(GL_TEXTURE_2D, chairTexture);
+		glDrawElements(GL_TRIANGLES, chairObjData.numFaces, GL_UNSIGNED_INT, (void*)0);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 
