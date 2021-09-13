@@ -10,7 +10,9 @@ uniform vec3 u_light_position;
 uniform vec3 u_camera_position;
 uniform vec3 u_ambient_color;
 uniform vec3 u_light_color;
+
 uniform sampler2D texture_diffuse;
+uniform sampler2D texture2_diffuse;
 
 out vec4 FragColor;
 
@@ -34,5 +36,5 @@ void main()
 	vec3 ambient = u_ambient_color * u_light_color;
 	float gradient = attenuate(lightDistance, 100.0f);
 
-	FragColor = vec4(ambient + gradient * (diffuse + specular), 1.0) * texture(texture_diffuse, UV);
+	FragColor = vec4(ambient + gradient * (diffuse + specular), 1.0) * (texture(texture_diffuse, UV) + texture(texture2_diffuse, UV));
 }

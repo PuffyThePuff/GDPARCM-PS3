@@ -63,11 +63,20 @@ int main() {
 
 	ObjData streetLightObjData;
 	LoadObjFile(&streetLightObjData, "Street Light/Street Light.obj");
-	GLfloat offsets2[] = { -1.0f, 0.0f, -3.5f };
+	GLfloat offsets2[] = { -10.0f, 0.0f, 0.0f };
 	LoadObjToMemory(
 		&streetLightObjData,
 		1.0f,
 		offsets2
+	);
+
+	ObjData speakerObjData;
+	LoadObjFile(&speakerObjData, "Speaker/Speaker.obj");
+	GLfloat offsets3[] = { -15.0f, 0.0f, 0.0f };
+	LoadObjToMemory(
+		&speakerObjData,
+		1.0f,
+		offsets3
 	);
 
 	std::vector<std::string> faces{
@@ -85,16 +94,15 @@ int main() {
 
 #pragma region Shader Loading
 
-	// For the skybox
+	// Load the skybox program
 	GLuint skyboxShaderProgram = LoadShaders("Shaders/skybox_vertex.shader", "Shaders/skybox_fragment.shader");
 
 
-	// For directional light
+	// Load directional light program; declare uniform location variables
 	GLuint directionalShaderProgram = LoadShaders("Shaders/phong_vertex.shader", "Shaders/directional_fragment.shader");
 	glUseProgram(directionalShaderProgram);
 
 	GLuint colorLoc = glGetUniformLocation(directionalShaderProgram, "u_color");
-	glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
 
 	GLuint modelTransformLoc = glGetUniformLocation(directionalShaderProgram, "u_model");
 	GLuint viewLoc = glGetUniformLocation(directionalShaderProgram, "u_view");
@@ -103,23 +111,35 @@ int main() {
 	GLuint normalTransformLoc = glGetUniformLocation(directionalShaderProgram, "u_normal");
 	GLuint cameraPosLoc = glGetUniformLocation(directionalShaderProgram, "u_camera_position");
 
-	glm::vec3 lightDirection = glm::vec3(1.0f, 0.0f, 0.0f);
 	GLuint lightDirectionLoc = glGetUniformLocation(directionalShaderProgram, "u_light_direction");
-	glUniform3f(lightDirectionLoc, lightDirection.x, lightDirection.y, lightDirection.z);
 
 	GLuint ambientColorLoc = glGetUniformLocation(directionalShaderProgram, "u_ambient_color");
-	glUniform3f(ambientColorLoc, 0.2f, 0.2f, 0.2f);
-
 	GLuint lightColorLoc = glGetUniformLocation(directionalShaderProgram, "u_light_color");
+
+	GLuint textureOneLoc = glGetUniformLocation(directionalShaderProgram, "texture_diffuse");
+	GLuint textureTwoLoc = glGetUniformLocation(directionalShaderProgram, "texture2_diffuse");
+	
+
+	// Set values for directional light
+	glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
+
+	glm::mat4 trans = glm::mat4(1.0f);
+	glUniformMatrix4fv(modelTransformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+
+	glm::vec3 lightDirection = glm::vec3(1.0f, 0.0f, 0.0f);
+	glUniform3f(lightDirectionLoc, lightDirection.x, lightDirection.y, lightDirection.z);
+
+	glUniform3f(ambientColorLoc, 0.2f, 0.2f, 0.2f);
 	glUniform3f(lightColorLoc, 1.0f, 1.0f, 1.0f);
 
+	glUniform1i(textureOneLoc, 0);
+	glUniform1i(textureTwoLoc, 1);
 
-	// For point light
+
+	// Load point light program; declare uniform location variables
 	GLuint pointShaderProgram = LoadShaders("Shaders/phong_vertex.shader", "Shaders/point_fragment.shader");
-	//glUseProgram(pointShaderProgram);
 
 	GLuint colorLoc2 = glGetUniformLocation(pointShaderProgram, "u_color");
-	glUniform3f(colorLoc2, 1.0f, 1.0f, 1.0f);
 
 	GLuint modelTransformLoc2 = glGetUniformLocation(pointShaderProgram, "u_model");
 	GLuint viewLoc2 = glGetUniformLocation(pointShaderProgram, "u_view");
@@ -128,22 +148,19 @@ int main() {
 	GLuint normalTransformLoc2 = glGetUniformLocation(pointShaderProgram, "u_normal");
 	GLuint cameraPosLoc2 = glGetUniformLocation(pointShaderProgram, "u_camera_position");
 
-	GLuint lightPositionLoc2 = glGetUniformLocation(directionalShaderProgram, "u_light_position");
-	glUniform3f(lightPositionLoc2, 0.0f, 4.0f, 0.0f);
+	GLuint lightPositionLoc2 = glGetUniformLocation(pointShaderProgram, "u_light_position");
 
 	GLuint ambientColorLoc2 = glGetUniformLocation(pointShaderProgram, "u_ambient_color");
-	glUniform3f(ambientColorLoc2, 0.2f, 0.2f, 0.2f);
-
 	GLuint lightColorLoc2 = glGetUniformLocation(pointShaderProgram, "u_light_color");
-	glUniform3f(lightColorLoc2, 1.0f, 1.0f, 1.0f);
+
+	GLuint textureOneLoc2 = glGetUniformLocation(pointShaderProgram, "texture_diffuse");
+	GLuint textureTwoLoc2 = glGetUniformLocation(pointShaderProgram, "texture2_diffuse");
 
 
-	// For spot light
+	// Load spotlight program; declare uniform location variables
 	GLuint spotShaderProgram = LoadShaders("Shaders/phong_vertex.shader", "Shaders/spot_fragment.shader");
-	//glUseProgram(spotShaderProgram);
 
 	GLuint colorLoc3 = glGetUniformLocation(spotShaderProgram, "u_color");
-	glUniform3f(colorLoc3, 1.0f, 1.0f, 1.0f);
 
 	GLuint modelTransformLoc3 = glGetUniformLocation(spotShaderProgram, "u_model");
 	GLuint viewLoc3 = glGetUniformLocation(spotShaderProgram, "u_view");
@@ -152,22 +169,17 @@ int main() {
 	GLuint normalTransformLoc3 = glGetUniformLocation(spotShaderProgram, "u_normal");
 	GLuint cameraPosLoc3 = glGetUniformLocation(spotShaderProgram, "u_camera_position");
 
-	GLuint lightPositionLoc3 = glGetUniformLocation(directionalShaderProgram, "u_light_position");
-	glUniform3f(lightPositionLoc3, -1.0f, 4.0f, -5.0f);
-
+	GLuint lightPositionLoc3 = glGetUniformLocation(spotShaderProgram, "u_light_position");
 	GLuint lightDirectionLoc3 = glGetUniformLocation(spotShaderProgram, "u_light_direction");
-	glUniform3f(lightDirectionLoc3, 1.0f, 0.0f, 0.0f);
 
 	GLuint ambientColorLoc3 = glGetUniformLocation(spotShaderProgram, "u_ambient_color");
-	glUniform3f(ambientColorLoc3, 0.2f, 0.2f, 0.2f);
-
 	GLuint lightColorLoc3 = glGetUniformLocation(spotShaderProgram, "u_light_color");
-	glUniform3f(lightColorLoc3, 1.0f, 1.0f, 1.0f);
+
+	GLuint textureOneLoc3 = glGetUniformLocation(spotShaderProgram, "texture_diffuse");
+	GLuint textureTwoLoc3 = glGetUniformLocation(spotShaderProgram, "texture2_diffuse");
 
 
-	glm::mat4 trans = glm::mat4(1.0f);
-	glUniformMatrix4fv(modelTransformLoc, 1, GL_FALSE, glm::value_ptr(trans));
-
+	// Declare other transform matrices
 	glm::mat4 inputTrans = glm::mat4(1.0f);
 	glm::mat4 lightDirectionTrans = glm::mat4(1.0f);
 	glm::mat4 projection = glm::mat4(1.0f);
@@ -182,6 +194,7 @@ int main() {
 	float prevTime = 0.0f;
 	float deltaTime = 0.0f;
 	float elapsedTime = 0.0f;
+	bool daytime = true;
 
 	int state[8];
 	glm::vec3 camPosition = glm::vec3(0.0f, 0.5f, 10.0f);
@@ -199,7 +212,6 @@ int main() {
 #pragma region Viewport
 		float ratio;
 		int width, height;
-		bool daytime = true;
 
 		glfwGetFramebufferSize(window, &width, &height);
 		ratio = width / (float)height;
@@ -213,8 +225,6 @@ int main() {
 
 		// Set projection matrix in shaders
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-		//glUniformMatrix4fv(projectionLoc2, 1, GL_FALSE, glm::value_ptr(projection));
-		//glUniformMatrix4fv(projectionLoc3, 1, GL_FALSE, glm::value_ptr(projection));
 
 #pragma endregion
 
@@ -222,8 +232,6 @@ int main() {
 		glm::mat4 view = glm::lookAt(camPosition, camPosition + camFront, camUp);
 		glUniform3f(cameraPosLoc, camPosition.x, camPosition.y, camPosition.z);
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-		//glUniformMatrix4fv(viewLoc2, 1, GL_FALSE, glm::value_ptr(view));
-		//glUniformMatrix4fv(viewLoc3, 1, GL_FALSE, glm::value_ptr(view));
 
 #pragma endregion
 
@@ -250,31 +258,120 @@ int main() {
 			DrawSkybox(skybox, skyboxShaderProgram, view, projection);
 		}
 
+
 		glBindVertexArray(meteorObjData.vaoId);
-		glUseProgram(directionalShaderProgram);
-		// else glUseProgram(pointShaderProgram);
+
+		if (daytime) {
+			glUseProgram(directionalShaderProgram);
+
+			glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
+			glUniformMatrix4fv(modelTransformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+			glUniform3f(lightDirectionLoc, lightDirection.x, lightDirection.y, lightDirection.z);
+			glUniform3f(ambientColorLoc, 0.2f, 0.2f, 0.2f);
+			glUniform3f(lightColorLoc, 1.0f, 1.0f, 1.0f);
+			glUniform1i(textureOneLoc, 0);
+			glUniform1i(textureTwoLoc, 1);
+		}
+
+		else {
+			glUseProgram(pointShaderProgram);
+
+			glUniform3f(colorLoc2, 1.0f, 1.0f, 1.0f);
+			glUniformMatrix4fv(modelTransformLoc2, 1, GL_FALSE, glm::value_ptr(trans));
+			glUniform3f(lightPositionLoc2, 0.0f, -40.0f, 0.0f);
+			glUniform3f(ambientColorLoc2, 0.2f, 0.2f, 0.2f);
+			glUniform3f(lightColorLoc2, 1.0f, 1.0f, 1.0f);
+			glUniform1i(textureOneLoc2, 0);
+			glUniform1i(textureTwoLoc2, 1);
+		}
+
+		glm::mat4 normalTrans = glm::transpose(glm::inverse(trans));
+		if (daytime) glUniformMatrix4fv(normalTransformLoc, 1, GL_FALSE, glm::value_ptr(normalTrans));
+		else glUniformMatrix4fv(normalTransformLoc2, 1, GL_FALSE, glm::value_ptr(normalTrans));
 
 		glActiveTexture(GL_TEXTURE0);
 		GLuint meteorTexture = meteorObjData.textures[meteorObjData.materials[0].diffuse_texname];
 		glBindTexture(GL_TEXTURE_2D, meteorTexture);
+
 		glDrawElements(GL_TRIANGLES, meteorObjData.numFaces, GL_UNSIGNED_INT, (void*)0);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
-		glm::mat4 normalTrans = glm::transpose(glm::inverse(trans));
-		glUniformMatrix4fv(normalTransformLoc, 1, GL_FALSE, glm::value_ptr(normalTrans));
 
 		glBindVertexArray(streetLightObjData.vaoId);
-		glUseProgram(directionalShaderProgram);
-		// else glUseProgram(pointShaderProgram);
+		if (daytime) {
+			glUseProgram(directionalShaderProgram);
 
-		glActiveTexture(GL_TEXTURE0);
+			glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
+			glUniformMatrix4fv(modelTransformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+			glUniform3f(lightDirectionLoc, lightDirection.x, lightDirection.y, lightDirection.z);
+			glUniform3f(ambientColorLoc, 0.2f, 0.2f, 0.2f);
+			glUniform3f(lightColorLoc, 1.0f, 1.0f, 1.0f);
+			glUniform1i(textureOneLoc, 0);
+			glUniform1i(textureTwoLoc, 1);
+		}
+
+		else {
+			glUseProgram(pointShaderProgram);
+
+			glUniform3f(colorLoc2, 1.0f, 1.0f, 1.0f);
+			glUniformMatrix4fv(modelTransformLoc2, 1, GL_FALSE, glm::value_ptr(trans));
+			glUniform3f(lightPositionLoc2, 0.0f, -40.0f, 0.0f);
+			glUniform3f(ambientColorLoc2, 0.2f, 0.2f, 0.2f);
+			glUniform3f(lightColorLoc2, 1.0f, 1.0f, 1.0f);
+			glUniform1i(textureOneLoc2, 0);
+			glUniform1i(textureTwoLoc2, 1);
+		}
+
+		glm::mat4 normalTrans2 = glm::transpose(glm::inverse(trans));
+		if (daytime) glUniformMatrix4fv(normalTransformLoc, 1, GL_FALSE, glm::value_ptr(normalTrans2));
+		else glUniformMatrix4fv(normalTransformLoc2, 1, GL_FALSE, glm::value_ptr(normalTrans2));
+
 		GLuint streetLightTexture = streetLightObjData.textures[streetLightObjData.materials[0].diffuse_texname];
+		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, streetLightTexture);
+
+		GLuint streetLightTexture2 = streetLightObjData.textures[streetLightObjData.materials[1].diffuse_texname];
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, streetLightTexture2);
+
 		glDrawElements(GL_TRIANGLES, streetLightObjData.numFaces, GL_UNSIGNED_INT, (void*)0);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
-		glm::mat4 normalTrans2 = glm::transpose(glm::inverse(trans));
-		glUniformMatrix4fv(normalTransformLoc, 1, GL_FALSE, glm::value_ptr(normalTrans2));
+
+		glBindVertexArray(speakerObjData.vaoId);
+		if (daytime) {
+			glUseProgram(directionalShaderProgram);
+
+			glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
+			glUniformMatrix4fv(modelTransformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+			glUniform3f(lightDirectionLoc, lightDirection.x, lightDirection.y, lightDirection.z);
+			glUniform3f(ambientColorLoc, 0.2f, 0.2f, 0.2f);
+			glUniform3f(lightColorLoc, 1.0f, 1.0f, 1.0f);
+			glUniform1i(textureOneLoc, 0);
+			glUniform1i(textureTwoLoc, 1);
+		}
+
+		else {
+			glUseProgram(pointShaderProgram);
+
+			glUniform3f(colorLoc2, 1.0f, 1.0f, 1.0f);
+			glUniformMatrix4fv(modelTransformLoc2, 1, GL_FALSE, glm::value_ptr(trans));
+			glUniform3f(lightPositionLoc2, 0.0f, -40.0f, 0.0f);
+			glUniform3f(ambientColorLoc2, 0.2f, 0.2f, 0.2f);
+			glUniform3f(lightColorLoc2, 1.0f, 1.0f, 1.0f);
+			glUniform1i(textureOneLoc2, 0);
+			glUniform1i(textureTwoLoc2, 1);
+		}
+
+		glm::mat4 normalTrans3 = glm::transpose(glm::inverse(trans));
+		glUniformMatrix4fv(normalTransformLoc, 1, GL_FALSE, glm::value_ptr(normalTrans3));
+
+		glActiveTexture(GL_TEXTURE0);
+		GLuint speakerTexture = speakerObjData.textures[speakerObjData.materials[0].diffuse_texname];
+		glBindTexture(GL_TEXTURE_2D, speakerTexture);
+		glDrawElements(GL_TRIANGLES, speakerObjData.numFaces, GL_UNSIGNED_INT, (void*)0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
 
 		if (state[0] == GLFW_PRESS) {
 			camPosition += 2.0f * deltaTime * camFront;
@@ -317,17 +414,19 @@ int main() {
 		}
 
 		view = glm::lookAt(camPosition, camPosition + camFront, camUp);
-		glUniform3f(cameraPosLoc, camPosition.x, camPosition.y, camPosition.z);
-		//glUniform3f(cameraPosLoc2, camPosition.x, camPosition.y, camPosition.z);
-		//glUniform3f(cameraPosLoc3, camPosition.x, camPosition.y, camPosition.z);
-		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-		//glUniformMatrix4fv(viewLoc2, 1, GL_FALSE, glm::value_ptr(view));
-		//glUniformMatrix4fv(viewLoc3, 1, GL_FALSE, glm::value_ptr(view));
+		if (daytime) {
+			glUniform3f(cameraPosLoc, camPosition.x, camPosition.y, camPosition.z);
+			glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+		}
+		else {
+			glUniform3f(cameraPosLoc2, camPosition.x, camPosition.y, camPosition.z);
+			glUniformMatrix4fv(viewLoc2, 1, GL_FALSE, glm::value_ptr(view));
+		}
 
 		lightDirectionTrans = glm::mat4(1.0f);
 		lightDirectionTrans = glm::rotate(lightDirectionTrans, glm::radians(6.f * deltaTime), glm::vec3(0.0f, 0.0f, 1.0f));
 		lightDirection = lightDirectionTrans * glm::vec4(lightDirection, 1.0f);
-		glUniform3f(lightDirectionLoc, lightDirection.x, lightDirection.y, lightDirection.z);
+		if (daytime) glUniform3f(lightDirectionLoc, lightDirection.x, lightDirection.y, lightDirection.z);
 
 		currentTime = glfwGetTime();
 		deltaTime = currentTime - prevTime;

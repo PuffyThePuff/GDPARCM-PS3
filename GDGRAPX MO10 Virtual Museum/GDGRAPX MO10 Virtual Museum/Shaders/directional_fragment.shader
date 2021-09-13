@@ -10,7 +10,10 @@ uniform vec3 u_light_direction;
 uniform vec3 u_camera_position;
 uniform vec3 u_ambient_color;
 uniform vec3 u_light_color;
+
 uniform sampler2D texture_diffuse;
+uniform sampler2D texture2_diffuse;
+//uniform sampler2D texture_normal;
 
 out vec4 FragColor;
 
@@ -23,13 +26,16 @@ void main()
 	else {
 		float specularStrength = 1.0f;
 		vec3 viewDirection = normalize(u_camera_position - fragPosition);
+
+		//vec3 tbnNormal = texture(texture_normal, UV).rgb;
+		//tbnNormal = 2.0 * tbnNormal - 1.0;
+
 		vec3 reflectDirection = reflect(-lightDirection, normal);
 		float spec = pow(max(dot(reflectDirection, viewDirection), 0.0f), 16);
 
 		vec3 specular = specularStrength * spec * u_light_color;
 		vec3 diffuse = vec3(max(dot(normal, lightDirection), 0.0)) * u_light_color;
 
-
-		FragColor = vec4(ambient + diffuse + specular, 1.0) * texture(texture_diffuse, UV);
+		FragColor = vec4(ambient + diffuse + specular, 1.0) * (texture(texture_diffuse, UV) + texture(texture2_diffuse, UV));
 	}
 }

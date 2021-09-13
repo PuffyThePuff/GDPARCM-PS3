@@ -1,4 +1,9 @@
-newmtl StreetLight
+newmtl Metal
 Kd 1 1 1
 d 1
-map_Kd Street_Light.tga
+map_Kd Metal.png
+
+newmtl Rust
+Kd 1 1 1
+d 1
+map_Kd Rust.png
