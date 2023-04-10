@@ -1,8 +1,8 @@
 /*
 Jose Miguel D. Bravo
 Nathaniel Francis S. Filoteo
-GDGRAPX S11
-Virtual Museum
+GDPARCM X22
+Problem Set 3
 */
 
 #include <stdio.h>
