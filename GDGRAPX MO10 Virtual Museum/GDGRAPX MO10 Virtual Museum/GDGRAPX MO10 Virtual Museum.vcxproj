@@ -143,6 +143,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ModelContainer.cpp" />
     <ClCompile Include="Semaphore.cpp" />
     <ClCompile Include="Thread.cpp" />
   </ItemGroup>
@@ -150,12 +151,14 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ModelContainer.h" />
     <ClInclude Include="obj_mesh.h" />
     <ClInclude Include="Semaphore.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="skybox.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Thread.h" />
+    <ClInclude Include="TinyObjLoadUtility.h" />
     <ClInclude Include="tiny_obj_loader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

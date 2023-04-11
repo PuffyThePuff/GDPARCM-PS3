@@ -10,14 +10,7 @@ Problem Set 3
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <vector>
-#define TINYOBJLOADER_IMPLEMENTATION
-#include "tiny_obj_loader.h"
-#include "glm/glm.hpp";
-#include "obj_mesh.h"
-#include "shader.h"
-#include "skybox.h"
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include"TinyObjLoadUtility.h"
 
 int main() {
 	stbi_set_flip_vertically_on_load(true);
@@ -52,6 +45,7 @@ int main() {
 
 
 #pragma region Mesh Loading
+	/*
 	ObjData meteorObjData;
 	LoadObjFile(&meteorObjData, "Meteor/Meteor.obj");
 	GLfloat offsets[] = { 0.0f, 0.0f, 0.0f };
@@ -78,6 +72,7 @@ int main() {
 		1.0f,
 		offsets3
 	);
+	*/
 
 	std::vector<std::string> faces{
 		"right.png",
@@ -87,7 +82,7 @@ int main() {
 		"front.png",
 		"back.png"
 	};
-	SkyboxData skybox = LoadSkybox("Assets/Skybox/Space", faces);
+	// SkyboxData skybox = LoadSkybox("Assets/Skybox/Space", faces);
 	SkyboxData daybox = LoadSkybox("Assets/Skybox/Day", faces);
 
 #pragma endregion
@@ -137,6 +132,7 @@ int main() {
 
 
 	// Load point light program; declare uniform location variables
+	/*
 	GLuint pointShaderProgram = LoadShaders("Shaders/phong_vertex.shader", "Shaders/point_fragment.shader");
 
 	GLuint colorLoc2 = glGetUniformLocation(pointShaderProgram, "u_color");
@@ -155,9 +151,11 @@ int main() {
 
 	GLuint textureOneLoc2 = glGetUniformLocation(pointShaderProgram, "texture_diffuse");
 	GLuint textureTwoLoc2 = glGetUniformLocation(pointShaderProgram, "texture2_diffuse");
+	*/
 
 
 	// Load spotlight program; declare uniform location variables
+	/*
 	GLuint spotShaderProgram = LoadShaders("Shaders/phong_vertex.shader", "Shaders/spot_fragment.shader");
 
 	GLuint colorLoc3 = glGetUniformLocation(spotShaderProgram, "u_color");
@@ -177,7 +175,7 @@ int main() {
 
 	GLuint textureOneLoc3 = glGetUniformLocation(spotShaderProgram, "texture_diffuse");
 	GLuint textureTwoLoc3 = glGetUniformLocation(spotShaderProgram, "texture2_diffuse");
-
+	*/
 
 	// Declare other transform matrices
 	glm::mat4 inputTrans = glm::mat4(1.0f);
@@ -251,14 +249,17 @@ int main() {
 		state[6] = glfwGetKey(window, GLFW_KEY_LEFT);
 		state[7] = glfwGetKey(window, GLFW_KEY_RIGHT);
 
+		/*
 		if (daytime) {
 			DrawSkybox(daybox, skyboxShaderProgram, view, projection);
 		}
 		else {
 			DrawSkybox(skybox, skyboxShaderProgram, view, projection);
 		}
+		*/
+		DrawSkybox(daybox, skyboxShaderProgram, view, projection);
 
-
+		/*
 		glBindVertexArray(meteorObjData.vaoId);
 
 		if (daytime) {
@@ -371,7 +372,7 @@ int main() {
 		glBindTexture(GL_TEXTURE_2D, chairTexture);
 		glDrawElements(GL_TRIANGLES, chairObjData.numFaces, GL_UNSIGNED_INT, (void*)0);
 		glBindTexture(GL_TEXTURE_2D, 0);
-
+		*/
 
 		if (state[0] == GLFW_PRESS) {
 			camPosition += 2.0f * deltaTime * camFront;
@@ -414,6 +415,7 @@ int main() {
 		}
 
 		view = glm::lookAt(camPosition, camPosition + camFront, camUp);
+		/*
 		if (daytime) {
 			glUniform3f(cameraPosLoc, camPosition.x, camPosition.y, camPosition.z);
 			glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
@@ -422,6 +424,9 @@ int main() {
 			glUniform3f(cameraPosLoc2, camPosition.x, camPosition.y, camPosition.z);
 			glUniformMatrix4fv(viewLoc2, 1, GL_FALSE, glm::value_ptr(view));
 		}
+		*/
+		glUniform3f(cameraPosLoc, camPosition.x, camPosition.y, camPosition.z);
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
 		lightDirectionTrans = glm::mat4(1.0f);
 		lightDirectionTrans = glm::rotate(lightDirectionTrans, glm::radians(6.f * deltaTime), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -433,6 +438,7 @@ int main() {
 		prevTime = currentTime;
 		elapsedTime += deltaTime;
 
+		/*
 		if (elapsedTime >= 30.0f) {
 			if (daytime) {
 				daytime = false;
@@ -442,6 +448,7 @@ int main() {
 			}
 			elapsedTime = 0.0f;
 		}
+		*/
 
 		// --- stop drawing here ---
 #pragma endregion
