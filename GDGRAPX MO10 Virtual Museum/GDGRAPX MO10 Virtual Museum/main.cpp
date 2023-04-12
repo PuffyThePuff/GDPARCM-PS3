@@ -12,6 +12,7 @@ Problem Set 3
 #include<vector>
 #include"TinyObjLoadUtility.h"
 #include"obj_mesh.h"
+#include"ModelContainer.h"
 
 int main() {
 	stbi_set_flip_vertically_on_load(true);
@@ -85,6 +86,8 @@ int main() {
 	};
 	// SkyboxData skybox = LoadSkybox("Assets/Skybox/Space", faces);
 	SkyboxData daybox = LoadSkybox("Assets/Skybox/Day", faces);
+
+	std::vector<ModelContainer*> activeModels;
 
 #pragma endregion
 
