@@ -118,11 +118,13 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>D:\DLSU\GDPARCM\PS3\GDGRAPX MO10 Virtual Museum\GDGRAPX MO10 Virtual Museum\packages\glm.0.9.9.800\build\native\include;D:\DLSU\GDPARCM\PS3\GDGRAPX MO10 Virtual Museum\GDGRAPX MO10 Virtual Museum\packages\glew-2.2.0.2.2.0.1\build\native\include;D:\DLSU\GDPARCM\PS3\GDGRAPX MO10 Virtual Museum\GDGRAPX MO10 Virtual Museum\packages\glfw.3.3.4\build\native\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;glfw3.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>D:\DLSU\GDPARCM\PS3\GDGRAPX MO10 Virtual Museum\GDGRAPX MO10 Virtual Museum\packages\glew-2.2.0.2.2.0.1\build\native\lib\Release\x64;D:\DLSU\GDPARCM\PS3\GDGRAPX MO10 Virtual Museum\GDGRAPX MO10 Virtual Museum\packages\glfw.3.3.4\build\native\lib\static\v142\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
