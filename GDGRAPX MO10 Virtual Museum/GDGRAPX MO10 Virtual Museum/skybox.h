@@ -1,10 +1,10 @@
+#pragma once
 #include <stdio.h>
 #include <vector>
 #include <iostream>
 #include <GL/glew.h>
 #include <glm/gtc/type_ptr.hpp>
-#include "obj_mesh.h";
-#pragma once
+#include "obj_mesh.h"
 
 const float skyboxVertices[] = {
 	-1.0f,  1.0f, -1.0f,
@@ -69,6 +69,7 @@ SkyboxData LoadSkybox(
 	for (unsigned int i = 0; i < faces.size(); i++) {
 		textureFileName = baseDir + "/" + faces[i];
 
+		/*
 		if (!FileExists(textureFileName)) {
 
 			//Append base dir.
@@ -79,6 +80,7 @@ SkyboxData LoadSkybox(
 				exit(1);
 			}
 		}
+		*/
 
 		unsigned char* image = stbi_load(
 			textureFileName.c_str(),

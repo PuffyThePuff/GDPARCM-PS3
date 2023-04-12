@@ -5,12 +5,10 @@ GDPARCM X22
 Problem Set 3
 */
 
-#include <stdio.h>
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-#include <iostream>
-#include <vector>
+#include<iostream>
+#include<vector>
 #include"TinyObjLoadUtility.h"
+#include"obj_mesh.h"
 
 int main() {
 	stbi_set_flip_vertically_on_load(true);

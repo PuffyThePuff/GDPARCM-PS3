@@ -1,8 +1,10 @@
 #pragma once
 
+#include<vector>
 #include<iostream>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#include"TinyObjLoadUtility.h"
 
 struct VertexData {
 	glm::vec3 position;
@@ -30,14 +32,14 @@ std::string GetBaseDir(const std::string& filepath) {
 	return "";
 }
 
-bool FileExists(const std::string& absFilename) {
+inline bool FileExists(const std::string& absFilename) {
 	struct stat buffer;
 	return (stat(absFilename.c_str(), &buffer) == 0);
 }
 
-void LoadTexIntoMem(ObjData* objData, std::string& texname, std::string& baseDir, int& width, int& height);
+inline void LoadTexIntoMem(ObjData* objData, std::string& texname, std::string& baseDir, int& width, int& height);
 
-void LoadTextureData(ObjData* objData) {
+inline void LoadTextureData(ObjData* objData) {
 	int width, height;
 	std::string baseDir = objData->baseDir;
 	for (size_t m = 0; m < objData->materials.size(); m++) {
@@ -54,7 +56,7 @@ void LoadTextureData(ObjData* objData) {
 	}
 }
 
-void LoadTexIntoMem(ObjData* objData, std::string& texname, std::string& baseDir, int& width, int& height)
+inline void LoadTexIntoMem(ObjData* objData, std::string& texname, std::string& baseDir, int& width, int& height)
 {
 	if (objData->textures.find(texname) == objData->textures.end()) {
 		GLuint textureId;
@@ -113,7 +115,7 @@ void LoadTexIntoMem(ObjData* objData, std::string& texname, std::string& baseDir
 
 
 // function used mainly for loading obj models
-void LoadObjFile(ObjData* objData, std::string filename) {
+inline void LoadObjFile(ObjData* objData, std::string filename) {
 	std::string warn;
 	std::string err;
 
@@ -143,7 +145,7 @@ void LoadObjFile(ObjData* objData, std::string filename) {
 
 
 
-void LoadObjToMemory(ObjData* objData, GLfloat scaleFactor, GLfloat tOffset[]) {
+inline void LoadObjToMemory(ObjData* objData, GLfloat scaleFactor, GLfloat tOffset[]) {
 
 	std::vector<glm::vec3> vertices;
 	std::vector<GLuint> indices;
