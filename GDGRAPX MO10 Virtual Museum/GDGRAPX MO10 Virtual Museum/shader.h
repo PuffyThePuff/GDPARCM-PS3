@@ -1,4 +1,6 @@
 #pragma once
+#include<fstream>
+#include<sstream>
 
 void checkShaderCompileStatus(int success, GLuint shader) {
 	char infoLog[512];

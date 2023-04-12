@@ -1,10 +1,15 @@
 #pragma once
 
+#include<stdio.h>
+#include<GL/glew.h>
 #include<vector>
 #include<iostream>
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-#include"TinyObjLoadUtility.h"
+#include"stb_image.h"
+#include "tiny_obj_loader.h"
+#include "glm/glm.hpp"
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 struct VertexData {
 	glm::vec3 position;
@@ -32,14 +37,14 @@ std::string GetBaseDir(const std::string& filepath) {
 	return "";
 }
 
-inline bool FileExists(const std::string& absFilename) {
+bool FileExists(const std::string& absFilename) {
 	struct stat buffer;
 	return (stat(absFilename.c_str(), &buffer) == 0);
 }
 
-inline void LoadTexIntoMem(ObjData* objData, std::string& texname, std::string& baseDir, int& width, int& height);
+void LoadTexIntoMem(ObjData* objData, std::string& texname, std::string& baseDir, int& width, int& height);
 
-inline void LoadTextureData(ObjData* objData) {
+void LoadTextureData(ObjData* objData) {
 	int width, height;
 	std::string baseDir = objData->baseDir;
 	for (size_t m = 0; m < objData->materials.size(); m++) {
@@ -56,7 +61,7 @@ inline void LoadTextureData(ObjData* objData) {
 	}
 }
 
-inline void LoadTexIntoMem(ObjData* objData, std::string& texname, std::string& baseDir, int& width, int& height)
+void LoadTexIntoMem(ObjData* objData, std::string& texname, std::string& baseDir, int& width, int& height)
 {
 	if (objData->textures.find(texname) == objData->textures.end()) {
 		GLuint textureId;
@@ -115,7 +120,7 @@ inline void LoadTexIntoMem(ObjData* objData, std::string& texname, std::string& 
 
 
 // function used mainly for loading obj models
-inline void LoadObjFile(ObjData* objData, std::string filename) {
+void LoadObjFile(ObjData* objData, std::string filename) {
 	std::string warn;
 	std::string err;
 
@@ -145,7 +150,7 @@ inline void LoadObjFile(ObjData* objData, std::string filename) {
 
 
 
-inline void LoadObjToMemory(ObjData* objData, GLfloat scaleFactor, GLfloat tOffset[]) {
+void LoadObjToMemory(ObjData* objData, GLfloat scaleFactor, GLfloat tOffset[]) {
 
 	std::vector<glm::vec3> vertices;
 	std::vector<GLuint> indices;
