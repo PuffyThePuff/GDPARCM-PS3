@@ -17,7 +17,6 @@ public:
 
 	float getFinishedModelCount() { return (float)finishedModelCount; }
 	float getTotalModelCount() { return (float)totalModelCount; }
-	bool finished() { return isFinished; }
 
 private:
 	void run() override;
@@ -28,5 +27,4 @@ private:
 
 	int finishedModelCount;
 	int totalModelCount;
-	bool isFinished = false;
 };

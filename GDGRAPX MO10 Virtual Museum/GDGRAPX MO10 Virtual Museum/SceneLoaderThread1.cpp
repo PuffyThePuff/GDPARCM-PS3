@@ -16,6 +16,7 @@ void SceneLoaderThread1::run() {
 	ModelContainer* meteor = new ModelContainer(0.f, 0.f, 0.f);
 	LoadObjFile(meteor->objData, "Meteor/Meteor.obj");
 	LoadObjToMemory(meteor->objData, 1.f, meteor->offsets);
+	finishedModelCount++;
 	/*
 	mutex->acquire();
 	listener->onLoadFinish(1, meteor);
