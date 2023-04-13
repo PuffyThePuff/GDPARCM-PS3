@@ -2,12 +2,12 @@
 #include"obj_mesh.h"
 
 SceneLoaderThread1::SceneLoaderThread1(
-	std::vector<ModelContainer*> active_models,
+	std::vector<ModelContainer*> scene_models,
 	Semaphore* shared_mutex /*,
 	LoaderThreadListener* thread_listener*/
 )
 {
-	activeModels = active_models;
+	sceneModels = scene_models;
 	mutex = shared_mutex;
 	// listener = thread_listener;
 }

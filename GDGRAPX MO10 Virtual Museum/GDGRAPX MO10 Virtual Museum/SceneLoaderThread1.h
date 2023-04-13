@@ -10,7 +10,7 @@ class SceneLoaderThread1 : public Thread
 {
 public:
 	SceneLoaderThread1(
-		std::vector<ModelContainer*> active_models,
+		std::vector<ModelContainer*> scene_models,
 		Semaphore* shared_mutex /*,
 		LoaderThreadListener* thread_listener*/
 	);
@@ -22,7 +22,7 @@ public:
 private:
 	void run() override;
 
-	std::vector<ModelContainer*> activeModels;
+	std::vector<ModelContainer*> sceneModels;
 	Semaphore* mutex;
 	// LoaderThreadListener* listener;
 
