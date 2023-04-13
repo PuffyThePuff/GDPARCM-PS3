@@ -9,7 +9,7 @@
 class SceneHandler : public Thread // , public ButtonListener, public LoaderThreadListener
 {
 public:
-	SceneHandler(std::vector<ModelContainer*>* active_models);
+	SceneHandler(std::vector<ModelContainer*>* active_models, int* current_scene);
 
 	void onButtonRelease(std::string button_name) /* override */;
 	void onLoadFinish(int scene_id, ModelContainer* model_to_add) /* override */;
@@ -31,6 +31,8 @@ private:
 	void addToScene(int scene_id, ModelContainer* model_to_add);
 
 	std::vector<ModelContainer*>* activeModels;
+	int* currentScene;
+	bool currentSceneIsLoading = true;
 
 	std::vector<ModelContainer*> scene1Models;
 	std::vector<ModelContainer*> scene2Models;
