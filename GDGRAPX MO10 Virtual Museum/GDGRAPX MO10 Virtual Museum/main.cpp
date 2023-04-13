@@ -88,11 +88,7 @@ int main() {
 	SkyboxData daybox = LoadSkybox("Assets/Skybox/Day", faces);
 
 	std::vector<ModelContainer*> activeModels;
-	std::vector<ModelContainer*> scene1Models;
-	std::vector<ModelContainer*> scene2Models;
-	std::vector<ModelContainer*> scene3Models;
-	std::vector<ModelContainer*> scene4Models;
-	std::vector<ModelContainer*> scene5Models;
+	int currentScene;
 
 #pragma endregion
 

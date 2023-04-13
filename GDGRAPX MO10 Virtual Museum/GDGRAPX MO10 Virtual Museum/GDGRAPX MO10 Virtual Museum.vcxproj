@@ -146,6 +146,7 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ModelContainer.cpp" />
+    <ClCompile Include="SceneHandler.cpp" />
     <ClCompile Include="SceneLoaderThread1.cpp" />
     <ClCompile Include="Semaphore.cpp" />
     <ClCompile Include="Thread.cpp" />
@@ -156,6 +157,7 @@
   <ItemGroup>
     <ClInclude Include="ModelContainer.h" />
     <ClInclude Include="obj_mesh.h" />
+    <ClInclude Include="SceneHandler.h" />
     <ClInclude Include="SceneLoaderThread1.h" />
     <ClInclude Include="Semaphore.h" />
     <ClInclude Include="shader.h" />
