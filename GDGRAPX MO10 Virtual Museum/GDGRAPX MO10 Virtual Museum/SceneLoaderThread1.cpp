@@ -1,13 +1,7 @@
 #include "SceneLoaderThread1.h"
 #include"obj_mesh.h"
 
-SceneLoaderThread1::SceneLoaderThread1(
-	std::vector<ModelContainer*> scene_models,
-	Semaphore* shared_mutex /*,
-	LoaderThreadListener* thread_listener*/
-)
-{
-	sceneModels = scene_models;
+SceneLoaderThread1::SceneLoaderThread1(Semaphore* shared_mutex /*, LoaderThreadListener* thread_listener*/) {
 	mutex = shared_mutex;
 	// listener = thread_listener;
 }
@@ -21,5 +15,7 @@ void SceneLoaderThread1::run() {
 	mutex->acquire();
 	listener->onLoadFinish(1, meteor);
 	mutex->release();
+
+	...
 	*/
 }

@@ -9,11 +9,7 @@
 class SceneLoaderThread1 : public Thread
 {
 public:
-	SceneLoaderThread1(
-		std::vector<ModelContainer*> scene_models,
-		Semaphore* shared_mutex /*,
-		LoaderThreadListener* thread_listener*/
-	);
+	SceneLoaderThread1(Semaphore* shared_mutex /*, LoaderThreadListener* thread_listener*/);
 
 	float getFinishedModelCount() { return (float)finishedModelCount; }
 	float getTotalModelCount() { return (float)totalModelCount; }
@@ -21,10 +17,9 @@ public:
 private:
 	void run() override;
 
-	std::vector<ModelContainer*> sceneModels;
 	Semaphore* mutex;
 	// LoaderThreadListener* listener;
 
-	int finishedModelCount;
-	int totalModelCount;
+	int finishedModelCount = 0;
+	int totalModelCount = 3;
 };
